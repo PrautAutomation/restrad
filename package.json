@@ -4,11 +4,9 @@
   "description": "AI & Automatizace pro restaurace - Interactive presentation",
   "main": "public/index.html",
   "scripts": {
-    "start": "npx http-server public -p 3000 -o",
-    "build": "npm run copy-assets",
-    "copy-assets": "cp -r src public/ && cp -r css public/",
-    "deploy": "npm run build && gh-pages -d public",
-    "preview": "npx http-server public -p 8080"
+    "start": "python3 -m http.server 3000 --directory public",
+    "build": "echo 'Files already in public directory'",
+    "preview": "python3 -m http.server 8080 --directory public"
   },
   "keywords": [
     "restaurant",
@@ -24,10 +22,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/USERNAME/REPOSITORY_NAME.git"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.1",
-    "http-server": "^14.1.1"
   },
   "engines": {
     "node": ">=14.0.0"
