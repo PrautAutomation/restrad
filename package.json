@@ -1,0 +1,35 @@
+{
+  "name": "restaurace-ai-presentation",
+  "version": "1.0.0",
+  "description": "AI & Automatizace pro restaurace - Interactive presentation",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "npx http-server public -p 3000 -o",
+    "build": "npm run copy-assets",
+    "copy-assets": "cp -r src public/ && cp -r css public/",
+    "deploy": "npm run build && gh-pages -d public",
+    "preview": "npx http-server public -p 8080"
+  },
+  "keywords": [
+    "restaurant",
+    "ai",
+    "automation",
+    "presentation",
+    "react",
+    "gastronomy"
+  ],
+  "author": "Restaurant AI Solutions",
+  "license": "MIT",
+  "homepage": "https://USERNAME.github.io/REPOSITORY_NAME",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/USERNAME/REPOSITORY_NAME.git"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
