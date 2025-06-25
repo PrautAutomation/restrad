@@ -1,1867 +1,222 @@
-import React, { useEffect, useState } from 'react';
-
-const TOTAL_SLIDES = 20;
-
-const Presentation = () => {
-  const [currentSlide, setCurrentSlide] = useState(1);
-
-  const nextSlide = () => {
-    setCurrentSlide(prev => prev >= TOTAL_SLIDES ? 1 : prev + 1);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide(prev => prev <= 1 ? TOTAL_SLIDES : prev - 1);
-  };
-
-  const goToSlide = (slideNumber) => {
-    setCurrentSlide(slideNumber);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') {
-        e.preventDefault();
-        nextSlide();
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        prevSlide();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  return (
-    <>
-      <style>{`
-        :root {
-          --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-          --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-          --glass-bg: rgba(255, 255, 255, 0.1);
-          --glass-border: rgba(255, 255, 255, 0.2);
-          --text-primary: #1a202c;
-          --text-secondary: #4a5568;
-          --text-light: rgba(255, 255, 255, 0.9);
-          --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.37);
-          --shadow-elevated: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        .presentation-wrapper {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-          background-attachment: fixed;
-          color: var(--text-primary);
-          overflow-x: hidden;
-          min-height: 100vh;
-          position: relative;
-        }
-
-        .presentation-container {
-          max-width: 1400px;
-          margin: 0 auto;
-          padding: 2rem;
-        }
-
-        .slide {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 24px;
-          padding: 4rem;
-          margin: 3rem 0;
-          box-shadow: var(--shadow-glass);
-          color: var(--text-light);
-          min-height: 700px;
-          display: none;
-          flex-direction: column;
-          justify-content: center;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .slide.active {
-          display: flex;
-          animation: slideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.98);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .slide h1 {
-          font-size: 3.5rem;
-          font-weight: 700;
-          margin-bottom: 2rem;
-          background: var(--accent-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          line-height: 1.2;
-        }
-
-        .slide h2 {
-          font-size: 2.5rem;
-          margin-bottom: 2.5rem;
-          color: var(--text-light);
-          position: relative;
-          padding-bottom: 1rem;
-          font-weight: 600;
-        }
-
-        .slide h2::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          width: 60px;
-          height: 3px;
-          background: var(--accent-gradient);
-          border-radius: 2px;
-        }
-
-        .slide h3 {
-          font-size: 1.6rem;
-          margin: 2rem 0 1rem 0;
-          color: var(--text-light);
-          font-weight: 600;
-        }
-
-        .slide h4 {
-          font-size: 1.3rem;
-          margin: 1.5rem 0 0.75rem 0;
-          color: var(--text-light);
-          font-weight: 600;
-        }
-
-        .slide p {
-          font-size: 1.2rem;
-          line-height: 1.7;
-          margin-bottom: 1.5rem;
-          color: rgba(255, 255, 255, 0.8);
-        }
-
-        .slide ul, .slide ol {
-          font-size: 1.1rem;
-          line-height: 1.7;
-          margin: 1.5rem 0;
-          padding-left: 0;
-        }
-
-        .slide li {
-          list-style: none;
-          margin: 1rem 0;
-          padding: 1.25rem 1.5rem;
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          position: relative;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .slide li:hover {
-          background: rgba(255, 255, 255, 0.12);
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .glass-card {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(15px);
-          -webkit-backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 20px;
-          padding: 2rem;
-          margin: 2rem 0;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .problem-highlight {
-          background: rgba(239, 68, 68, 0.15);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .solution-highlight {
-          background: rgba(34, 197, 94, 0.15);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .partnership-highlight {
-          background: rgba(59, 130, 246, 0.15);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .security-highlight {
-          background: rgba(139, 92, 246, 0.15);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
-          margin: 2rem 0;
-        }
-
-        .stat-card {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          padding: 2rem;
-          border-radius: 20px;
-          text-align: center;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .stat-card:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-number {
-          font-size: 2.5rem;
-          font-weight: 700;
-          display: block;
-          background: var(--accent-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .stat-label {
-          font-size: 0.95rem;
-          opacity: 0.9;
-          margin-top: 0.5rem;
-          display: block;
-        }
-
-        .timeline {
-          position: relative;
-          margin: 3rem 0;
-        }
-
-        .timeline::before {
-          content: '';
-          position: absolute;
-          left: 2rem;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background: var(--accent-gradient);
-        }
-
-        .timeline-item {
-          position: relative;
-          margin: 2rem 0;
-          padding-left: 5rem;
-        }
-
-        .timeline-item::before {
-          content: '';
-          position: absolute;
-          left: 1.25rem;
-          top: 1.5rem;
-          width: 1.5rem;
-          height: 1.5rem;
-          border-radius: 50%;
-          background: var(--accent-gradient);
-          box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
-        }
-
-        .timeline-content {
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          padding: 1.5rem;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .timeline-content:hover {
-          background: rgba(255, 255, 255, 0.12);
-          transform: translateX(10px);
-        }
-
-        .month-label {
-          font-weight: 600;
-          font-size: 1.1rem;
-          margin-bottom: 0.75rem;
-          background: var(--accent-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .cta-section {
-          background: rgba(0, 0, 0, 0.3);
-          backdrop-filter: blur(30px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 24px;
-          padding: 4rem;
-          text-align: center;
-          margin: 3rem 0;
-        }
-
-        .cta-button {
-          background: var(--accent-gradient);
-          color: white;
-          padding: 1rem 2rem;
-          border: none;
-          border-radius: 50px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          margin: 0.75rem;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-          min-width: 200px;
-        }
-
-        .cta-button:hover {
-          transform: translateY(-3px) scale(1.05);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .cta-button.secondary {
-          background: rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(10px);
-        }
-
-        .navigation {
-          position: fixed;
-          bottom: 2rem;
-          right: 2rem;
-          z-index: 1000;
-          display: flex;
-          gap: 0.75rem;
-        }
-
-        .nav-button {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(15px);
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          width: 3.5rem;
-          height: 3.5rem;
-          cursor: pointer;
-          font-size: 1.2rem;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .nav-button:hover {
-          background: rgba(255, 255, 255, 0.2);
-          transform: scale(1.1);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .slide-counter {
-          position: absolute;
-          top: 1.5rem;
-          right: 2rem;
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          padding: 0.75rem 1.5rem;
-          border-radius: 50px;
-          font-weight: 600;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .progress-bar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          height: 3px;
-          background: var(--accent-gradient);
-          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          z-index: 1001;
-          box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
-        }
-
-        .slide-indicator {
-          position: fixed;
-          bottom: 7rem;
-          right: 2rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          z-index: 1000;
-        }
-
-        .indicator-dot {
-          width: 0.75rem;
-          height: 0.75rem;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.3);
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .indicator-dot.active {
-          background: white;
-          transform: scale(1.4);
-          box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-        }
-
-        .highlight-text {
-          background: var(--accent-gradient);
-          padding: 0.25rem 0.75rem;
-          border-radius: 50px;
-          font-weight: 600;
-          color: white;
-          display: inline-block;
-          font-size: 0.9em;
-        }
-
-        .restaurant-icon {
-          font-size: 4rem;
-          margin-bottom: 1rem;
-          filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
-        }
-
-        /* Nové styly pro restaurační prezentaci */
-        .ai-features-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1.5rem;
-          margin: 2rem 0;
-        }
-
-        .content-examples {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .chat-demo {
-          background: rgba(0, 0, 0, 0.2);
-          padding: 1.5rem;
-          border-radius: 16px;
-          font-size: 0.95rem;
-        }
-
-        .chat-demo p {
-          margin: 0.5rem 0;
-          padding: 0.75rem;
-          border-radius: 12px;
-        }
-
-        .features-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-top: 1.5rem;
-        }
-
-        .feature-card {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 16px;
-          text-align: center;
-        }
-
-        .loyalty-systems {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 2rem;
-        }
-
-        .roi-box {
-          margin-top: 1.5rem;
-          padding: 1rem;
-          background: rgba(34, 197, 94, 0.2);
-          border-radius: 12px;
-          text-align: center;
-        }
-
-        .stamp-card-demo {
-          text-align: center;
-          padding: 1.5rem;
-        }
-
-        .stamps {
-          font-size: 2rem;
-          margin: 1rem 0;
-        }
-
-        .offers-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 2fr);
-          gap: 1.5rem;
-        }
-
-        .tip-box {
-          background: rgba(255, 204, 0, 0.2);
-          padding: 1.5rem;
-          border-radius: 16px;
-          margin-top: 2rem;
-          text-align: center;
-          font-weight: 600;
-        }
-
-        .event-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
-          margin: 1.5rem 0;
-        }
-
-        .event-item {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-        }
-
-        .roi {
-          color: #22c55e;
-          font-weight: 600;
-          margin-top: 0.5rem;
-        }
-
-        .affiliate-structure {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .reward-tiers {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-
-        .tier {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-          text-align: center;
-        }
-
-        .social-strategy {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .metric-box {
-          margin-top: 1rem;
-          text-align: center;
-        }
-
-        .challenge-example {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-          margin-top: 1rem;
-        }
-
-        .events-calendar {
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        .partnership-examples {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .b2b-deals {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1.5rem;
-          margin-top: 1rem;
-        }
-
-        .deal {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-        }
-
-        .revenue {
-          color: #22c55e;
-          font-weight: 600;
-          margin-top: 1rem;
-        }
-
-        .impact {
-          margin-top: 1rem;
-          font-weight: 600;
-          color: #22c55e;
-        }
-
-        .voucher-analysis {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 2rem;
-        }
-
-        .voucher-example {
-          margin-top: 1.5rem;
-        }
-
-        .voucher-card {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-          text-align: center;
-        }
-
-        .fine-print {
-          font-size: 0.9rem;
-          opacity: 0.8;
-          margin-top: 0.5rem;
-        }
-
-        .tech-showcase {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-
-        .roi-calculation {
-          margin-top: 1rem;
-          text-align: center;
-          font-weight: 600;
-          color: #22c55e;
-        }
-
-        .ar-features {
-          margin-top: 1rem;
-        }
-
-        .smart-table {
-          margin-top: 1rem;
-        }
-
-        .pricing-strategy {
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        .pricing-factors {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-
-        .factor {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-          text-align: center;
-        }
-
-        .menu-psychology {
-          margin-top: 2rem;
-        }
-
-        .supply-chain {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-
-        .prediction-model {
-          margin-top: 1rem;
-        }
-
-        .accuracy-box {
-          margin-top: 1.5rem;
-          text-align: center;
-        }
-
-        .auto-order-flow {
-          margin-top: 1rem;
-        }
-
-        .step {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1rem;
-          margin: 0.5rem 0;
-          border-radius: 8px;
-        }
-
-        .saving {
-          margin-top: 1.5rem;
-          text-align: center;
-          font-weight: 600;
-          font-size: 1.2rem;
-        }
-
-        .environmental-impact {
-          margin-top: 1.5rem;
-          text-align: center;
-          font-size: 1.2rem;
-          font-weight: 600;
-        }
-
-        .competitive-analysis {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 2rem;
-        }
-
-        .monitoring-dashboard {
-          margin-top: 1rem;
-        }
-
-        .alert-example {
-          margin-top: 1.5rem;
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1rem;
-          border-radius: 12px;
-        }
-
-        .alert {
-          color: #f59e0b;
-          font-weight: 600;
-        }
-
-        .response {
-          color: #22c55e;
-          margin-top: 0.5rem;
-        }
-
-        .trend-tracking {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1rem;
-          margin-top: 1rem;
-        }
-
-        .trend {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-        }
-
-        .analytics-dashboard {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-
-        .heatmap-insights {
-          margin-top: 1rem;
-        }
-
-        .optimization {
-          margin-top: 1rem;
-          color: #22c55e;
-          font-weight: 600;
-        }
-
-        .sentiment-breakdown {
-          margin-top: 1rem;
-        }
-
-        .sentiment-score {
-          text-align: center;
-          margin-bottom: 1rem;
-        }
-
-        .score-number {
-          font-size: 2.5rem;
-          font-weight: 700;
-          display: block;
-          background: var(--accent-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .score-label {
-          font-size: 1rem;
-          opacity: 0.8;
-        }
-
-        .sentiment-details p {
-          margin: 0.5rem 0;
-        }
-
-        .action-taken {
-          margin-top: 1rem;
-          background: rgba(34, 197, 94, 0.2);
-          padding: 1rem;
-          border-radius: 8px;
-        }
-
-        .roi-summary {
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
-        }
-
-        .results-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1.5rem;
-          margin-top: 1.5rem;
-        }
-
-        .result-item {
-          text-align: center;
-        }
-
-        .metric {
-          font-size: 2rem;
-          font-weight: 700;
-          display: block;
-          background: var(--accent-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .label {
-          font-size: 0.9rem;
-          opacity: 0.8;
-          margin-top: 0.5rem;
-        }
-
-        .case-study-final {
-          margin-top: 2rem;
-        }
-
-        .before-after {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 2rem;
-          margin: 1.5rem 0;
-        }
-
-        .before, .after {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-        }
-
-        .testimonial {
-          margin-top: 1.5rem;
-          font-style: italic;
-          text-align: center;
-          font-size: 1.1rem;
-        }
-
-        .offer-box {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(15px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
-          padding: 2rem;
-          margin: 2rem auto;
-          max-width: 800px;
-        }
-
-        .offer-details {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-          margin-top: 1.5rem;
-        }
-
-        .offer-item {
-          text-align: center;
-        }
-
-        .urgency {
-          margin: 2rem 0;
-        }
-
-        .deadline {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: #f59e0b;
-        }
-
-        .cta-buttons {
-          margin: 2rem 0;
-        }
-
-        .contact-info {
-          margin-top: 2rem;
-        }
-
-        .guarantee {
-          margin-top: 1rem;
-          color: #22c55e;
-          font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-          .slide {
-            padding: 2rem;
-          }
-          
-          .slide h1 {
-            font-size: 2rem;
-          }
-          
-          .slide h2 {
-            font-size: 1.5rem;
-          }
-          
-          .ai-features-grid,
-          .offers-grid,
-          .event-grid,
-          .loyalty-systems,
-          .reward-tiers,
-          .b2b-deals,
-          .voucher-analysis,
-          .tech-showcase,
-          .pricing-factors,
-          .supply-chain,
-          .trend-tracking,
-          .analytics-dashboard,
-          .competitive-analysis,
-          .results-grid,
-          .before-after,
-          .offer-details {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-      
-      <div className="presentation-wrapper">
-        <div className="progress-bar" style={{ width: `${(currentSlide / TOTAL_SLIDES) * 100}%` }} />
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & Automatizace pro restaurace</title>
+    <meta name="description" content="Revoluce v gastronomii pomocí umělé inteligence - jak získat více zákazníků a automatizovat provoz">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
         
-        <div className="presentation-container">
-          {/* Slide 1: Úvodní slide */}
-          <div className={`slide title-slide ${currentSlide === 1 ? 'active' : ''}`}>
-            <div className="slide-counter">1/{TOTAL_SLIDES}</div>
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              height: '100%',
-              textAlign: 'center' 
-            }}>
-              <div className="restaurant-icon">🍽️</div>
-              <h1>AI & Automatizace pro restaurace</h1>
-              <div className="glass-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <p style={{ fontSize: '1.8rem', fontWeight: 500 }}>
-                  Revoluce v gastronomii pomocí umělé inteligence
-                </p>
-                <p style={{ fontSize: '1.3rem', opacity: 0.8 }}>
-                  Jak získat více zákazníků a automatizovat provoz
-                </p>
-              </div>
-            </div>
-          </div>
+        const TOTAL_SLIDES = 20;
 
-          {/* Slide 2: Výzvy restaurací */}
-          <div className={`slide ${currentSlide === 2 ? 'active' : ''}`}>
-            <div className="slide-counter">2/{TOTAL_SLIDES}</div>
-            <h2>🎯 Výzvy moderních restaurací</h2>
-            
-            <div className="stats-grid">
-              <div className="stat-card">
-                <span className="stat-number">60%</span>
-                <span className="stat-label">restaurací zkrachuje do 3 let</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-number">78%</span>
-                <span className="stat-label">zákazníků čte online recenze</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-number">43%</span>
-                <span className="stat-label">vyšší náklady než před pandemií</span>
-              </div>
-            </div>
+        const Presentation = () => {
+          const [currentSlide, setCurrentSlide] = useState(1);
 
-            <div className="glass-card problem-highlight">
-              <h3>Hlavní problémy:</h3>
-              <ul>
-                <li><strong>Vysoká konkurence</strong> - na každém rohu nová restaurace</li>
-                <li><strong>Rostoucí náklady</strong> - suroviny, energie, mzdy</li>
-                <li><strong>Nedostatek personálu</strong> - fluktuace až 75% ročně</li>
-                <li><strong>Změna chování zákazníků</strong> - online objednávky, delivery</li>
-                <li><strong>Nutnost být online</strong> - sociální sítě, recenze, marketing</li>
-              </ul>
-            </div>
-          </div>
+          const nextSlide = () => {
+            setCurrentSlide(prev => prev >= TOTAL_SLIDES ? 1 : prev + 1);
+          };
 
-          {/* Slide 3: AI řešení - přehled */}
-          <div className={`slide ${currentSlide === 3 ? 'active' : ''}`}>
-            <div className="slide-counter">3/{TOTAL_SLIDES}</div>
-            <h2>🤖 Naše AI řešení pro restaurace</h2>
-            
-            <div className="ai-features-grid">
-              <div className="glass-card partnership-highlight">
-                <h3>🎯 Marketing & Zákazníci</h3>
-                <ul>
-                  <li>Inteligentní lead generation</li>
-                  <li>Automatický content na sociální sítě</li>
-                  <li>Personalizované kampaně</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>🤝 Customer Experience</h3>
-                <ul>
-                  <li>AI chatbot pro rezervace</li>
-                  <li>Prediktivní doporučování</li>
-                  <li>Automatické follow-up</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card">
-                <h3>⚙️ Operační efektivita</h3>
-                <ul>
-                  <li>Optimalizace zásob</li>
-                  <li>Predikce poptávky</li>
-                  <li>Automatické objednávky</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card security-highlight">
-                <h3>📊 Data Intelligence</h3>
-                <ul>
-                  <li>Analýza konkurence</li>
-                  <li>Sentiment tracking</li>
-                  <li>Predikce trendů</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          const prevSlide = () => {
+            setCurrentSlide(prev => prev <= 1 ? TOTAL_SLIDES : prev - 1);
+          };
 
-          {/* Slide 4: Lead Generation Detail */}
-          <div className={`slide ${currentSlide === 4 ? 'active' : ''}`}>
-            <div className="slide-counter">4/{TOTAL_SLIDES}</div>
-            <h2>🎯 Inteligentní Lead Generation</h2>
-            
-            <div className="example-section">
-              <h3>Jak to funguje v praxi:</h3>
+          const goToSlide = (slideNumber) => {
+            setCurrentSlide(slideNumber);
+          };
+
+          useEffect(() => {
+            const handleKeyDown = (e) => {
+              if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+              } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+              }
+            };
+
+            document.addEventListener('keydown', handleKeyDown);
+            return () => document.removeEventListener('keydown', handleKeyDown);
+          }, []);
+
+          return (
+            <div className="presentation-wrapper">
+              <div className="progress-bar" style={{ width: `${(currentSlide / TOTAL_SLIDES) * 100}%` }} />
               
-              <div className="timeline">
-                <div className="timeline-item">
-                  <div className="timeline-content">
-                    <div className="month-label">1. Sběr dat</div>
+              <div className="presentation-container">
+                {/* Slide 1: Úvodní slide */}
+                <div className={`slide title-slide ${currentSlide === 1 ? 'active' : ''}`}>
+                  <div className="slide-counter">1/{TOTAL_SLIDES}</div>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    height: '100%',
+                    textAlign: 'center' 
+                  }}>
+                    <div className="restaurant-icon">🍽️</div>
+                    <h1>AI & Automatizace pro restaurace</h1>
+                    <div className="glass-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
+                      <p style={{ fontSize: '1.8rem', fontWeight: 500 }}>
+                        Revoluce v gastronomii pomocí umělé inteligence
+                      </p>
+                      <p style={{ fontSize: '1.3rem', opacity: 0.8 }}>
+                        Jak získat více zákazníků a automatizovat provoz
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Slide 2: Výzvy restaurací */}
+                <div className={`slide ${currentSlide === 2 ? 'active' : ''}`}>
+                  <div className="slide-counter">2/{TOTAL_SLIDES}</div>
+                  <h2>🎯 Výzvy moderních restaurací</h2>
+                  
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <span className="stat-number">60%</span>
+                      <span className="stat-label">restaurací zkrachuje do 3 let</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-number">78%</span>
+                      <span className="stat-label">zákazníků čte online recenze</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-number">43%</span>
+                      <span className="stat-label">vyšší náklady než před pandemií</span>
+                    </div>
+                  </div>
+
+                  <div className="glass-card problem-highlight">
+                    <h3>Hlavní problémy:</h3>
                     <ul>
-                      <li>Scraping Google Maps pro analýzu konkurence</li>
-                      <li>Analýza Zomato/Foodora hodnocení</li>
-                      <li>Demografická data okolí</li>
+                      <li><strong>Vysoká konkurence</strong> - na každém rohu nová restaurace</li>
+                      <li><strong>Rostoucí náklady</strong> - suroviny, energie, mzdy</li>
+                      <li><strong>Nedostatek personálu</strong> - fluktuace až 75% ročně</li>
+                      <li><strong>Změna chování zákazníků</strong> - online objednávky, delivery</li>
+                      <li><strong>Nutnost být online</strong> - sociální sítě, recenze, marketing</li>
                     </ul>
                   </div>
                 </div>
-                
-                <div className="timeline-item">
-                  <div className="timeline-content">
-                    <div className="month-label">2. AI analýza</div>
-                    <ul>
-                      <li>Identifikace cílových skupin</li>
-                      <li>Analýza preferencí místních</li>
-                      <li>Detekce mezer na trhu</li>
-                    </ul>
-                  </div>
-                </div>
-                
-                <div className="timeline-item">
-                  <div className="timeline-content">
-                    <div className="month-label">3. Personalizované kampaně</div>
-                    <ul>
-                      <li>"Vím, že pracujete v Oracle - máme business lunch menu"</li>
-                      <li>"Pro rodiny z Radlic - dětský koutek a menu"</li>
-                      <li>"Studentům z UK dáváme 20% slevu"</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Slide 5: Content Marketing Automation */}
-          <div className={`slide ${currentSlide === 5 ? 'active' : ''}`}>
-            <div className="slide-counter">5/{TOTAL_SLIDES}</div>
-            <h2>📱 Content Marketing Automation</h2>
-            
-            <div className="content-examples">
-              <div className="glass-card">
-                <h3>🖼️ AI Fotograf</h3>
-                <p>Zadáte: "Česnečka s krutony a sýrem"</p>
-                <p>AI vytvoří: Profesionální fotku pro Instagram</p>
-                <div className="benefits">
-                  <span className="highlight-text">Úspora 50 000 Kč/rok za fotografa</span>
-                </div>
-              </div>
-              
-              <div className="glass-card">
-                <h3>✍️ Automatické posty</h3>
-                <ul>
-                  <li><strong>Pondělí:</strong> Týdenní menu s lokálním kontextem</li>
-                  <li><strong>Středa:</strong> Behind the scenes ze kuchyně</li>
-                  <li><strong>Pátek:</strong> Víkendové speciály</li>
-                  <li><strong>Neděle:</strong> Recept týdne</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>📈 Výsledky</h3>
-                <ul>
-                  <li>+250% engagement na sociálních sítích</li>
-                  <li>3x více organického dosahu</li>
-                  <li>45% nárůst rezervací přes Instagram</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 6: Customer Experience */}
-          <div className={`slide ${currentSlide === 6 ? 'active' : ''}`}>
-            <div className="slide-counter">6/{TOTAL_SLIDES}</div>
-            <h2>🤝 Personalizovaný Customer Service</h2>
-            
-            <div className="chat-example">
-              <div className="glass-card">
-                <h3>💬 WhatsApp/Messenger Bot s pamětí</h3>
-                <div className="chat-demo">
-                  <p><strong>Zákazník:</strong> "Ahoj, chtěl bych rezervaci"</p>
-                  <p><strong>AI:</strong> "Dobrý den, pane Nováku! Vidím, že jste u nás byli minulý týden. Chcete opět stůl u okna pro 4 osoby?"</p>
-                  <p><strong>Zákazník:</strong> "Ano, na pátek"</p>
-                  <p><strong>AI:</strong> "Výborně! Pátek 19:00 jako obvykle? A mám připravit vaše oblíbené Chardonnay?"</p>
-                </div>
-              </div>
-              
-              <div className="prediktive-features">
-                <h3>🔮 Prediktivní doporučování</h3>
-                <div className="features-grid">
-                  <div className="feature-card">
-                    <h4>🌤️ Podle počasí</h4>
-                    <p>"Dnes bude 32°C - doporučujeme naše ledové speciality"</p>
-                  </div>
-                  <div className="feature-card">
-                    <h4>📅 Podle dne</h4>
-                    <p>"Pátek = rychlé menu pro business lunch"</p>
-                  </div>
-                  <div className="feature-card">
-                    <h4>👤 Podle historie</h4>
-                    <p>"Máte rádi pikantní - zkuste naše nové jalapeño burgery"</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 7: Věrnostní systémy */}
-          <div className={`slide ${currentSlide === 7 ? 'active' : ''}`}>
-            <div className="slide-counter">7/{TOTAL_SLIDES}</div>
-            <h2>🎁 Věrnostní & registrační systémy</h2>
-            
-            <div className="loyalty-systems">
-              <div className="glass-card partnership-highlight">
-                <h3>📱 Digitální věrnostní karta</h3>
-                <ul>
-                  <li><strong>QR kód v mobilu</strong> - žádné plastové karty</li>
-                  <li><strong>Automatické body</strong> - 1 Kč = 1 bod</li>
-                  <li><strong>Okamžité odměny</strong> - 500 bodů = dezert zdarma</li>
-                  <li><strong>Gamifikace</strong> - úrovně Bronze/Silver/Gold</li>
-                </ul>
-                <div className="roi-box">
-                  <span className="stat-number">+35%</span>
-                  <span className="stat-label">vyšší průměrná útrata věrných zákazníků</span>
-                </div>
-              </div>
-              
-              <div className="glass-card">
-                <h3>🎯 Každé X-té jídlo zdarma</h3>
-                <div className="stamp-card-demo">
-                  <div className="stamps">
-                    🍔 🍔 🍔 🍔 🍔 🍔 🍔 🍔 🍔 🎁
-                  </div>
-                  <p>Psychologie: Lidé rádi sbírají a dokončují</p>
-                  <p><strong>Tip:</strong> 10. jídlo zdarma = 10% sleva, ale působí lépe</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="glass-card solution-highlight">
-              <h3>💡 Best practices</h3>
-              <ul>
-                <li>Registrace musí být rychlá (max 30 sekund)</li>
-                <li>Okamžitá odměna za registraci (welcome drink)</li>
-                <li>Připomínky o expirujících bodech</li>
-                <li>VIP benefity pro top zákazníky</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Slide 8: Akční nabídky */}
-          <div className={`slide ${currentSlide === 8 ? 'active' : ''}`}>
-            <div className="slide-counter">8/{TOTAL_SLIDES}</div>
-            <h2>🔥 Akční nabídky</h2>
-            
-            <div className="offers-grid">
-              <div className="glass-card">
-                <h3>📅 Menu týdne</h3>
-                <ul>
-                  <li>Levnější o 20-30% než běžné menu</li>
-                  <li>Využití přebytků ze skladu</li>
-                  <li>Test nových receptů</li>
-                  <li><strong>ROI:</strong> Průměrně +15% tržeb v pondělí-středa</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card">
-                <h3>🍻 Happy Hours</h3>
-                <ul>
-                  <li>14:00-17:00 - mrtvé hodiny</li>
-                  <li>Drinky -50%, předkrmy -30%</li>
-                  <li>Přitáhne after-work crowd</li>
-                  <li><strong>Efekt:</strong> +40% tržeb v odpoledních hodinách</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card partnership-highlight">
-                <h3>👨‍👩‍👧‍👦 Rodinné menu</h3>
-                <ul>
-                  <li>2 dospělí + 2 děti = -25%</li>
-                  <li>Dětské menu zdarma při objednávce dospělého</li>
-                  <li>Neděle = rodinný den</li>
-                  <li><strong>Výsledek:</strong> Průměrná útrata 1200 Kč/stůl</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card">
-                <h3>🍕 All You Can Eat</h3>
-                <ul>
-                  <li>Úterý = Pizza kolik sníš za 399 Kč</li>
-                  <li>Průměrná konzumace: 2.5 pizzy</li>
-                  <li>Náklady: 120 Kč, zisk: 279 Kč</li>
-                  <li><strong>Bonus:</strong> Vysoké marže na nápojích</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="tip-box">
-              💡 <strong>TIP:</strong> Kombinujte nabídky s omezenou dobou platnosti pro urgenci
-            </div>
-          </div>
-
-          {/* Slide 9: Affiliate programy */}
-          <div className={`slide ${currentSlide === 9 ? 'active' : ''}`}>
-            <div className="slide-counter">9/{TOTAL_SLIDES}</div>
-            <h2>🤝 Affiliate & doporučovací programy</h2>
-            
-            <div className="affiliate-structure">
-              <div className="glass-card solution-highlight">
-                <h3>💰 Struktura odměn</h3>
-                <div className="reward-tiers">
-                  <div className="tier">
-                    <h4>🥉 Bronze Partner</h4>
-                    <p>1-5 doporučení/měsíc</p>
-                    <p><strong>10% z útraty</strong> nového hosta</p>
-                  </div>
-                  <div className="tier">
-                    <h4>🥈 Silver Partner</h4>
-                    <p>6-15 doporučení/měsíc</p>
-                    <p><strong>15% z útraty + bonus 500 Kč</strong></p>
-                  </div>
-                  <div className="tier">
-                    <h4>🥇 Gold Partner</h4>
-                    <p>16+ doporučení/měsíc</p>
-                    <p><strong>20% z útraty + VIP benefity</strong></p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card">
-                <h3>📱 Jak to funguje</h3>
-                <ol>
-                  <li><strong>Unikátní QR kód</strong> pro každého partnera</li>
-                  <li><strong>Real-time tracking</strong> v mobilní aplikaci</li>
-                  <li><strong>Automatické vyplácení</strong> každý měsíc</li>
-                  <li><strong>Leaderboard</strong> - soutěž mezi partnery</li>
-                </ol>
-              </div>
-            </div>
-            
-            <div className="case-study">
-              <div className="glass-card partnership-highlight">
-                <h3>📊 Case Study: Restaurace U Zlatého lva</h3>
-                <ul>
-                  <li>150 aktivních partnerů za 3 měsíce</li>
-                  <li>Průměrně 450 nových hostů měsíčně</li>
-                  <li>ROI 380% (náklady 45k, příjem 215k)</li>
-                  <li>Nejlepší partner: místní fitness trenér (82 doporučení)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 10: Online aktivity */}
-          <div className={`slide ${currentSlide === 10 ? 'active' : ''}`}>
-            <div className="slide-counter">10/{TOTAL_SLIDES}</div>
-            <h2>📱 Online aktivity & sociální sítě</h2>
-            
-            <div className="social-strategy">
-              <div className="glass-card">
-                <h3>📸 Instagram strategie</h3>
-                <ul>
-                  <li><strong>User Generated Content:</strong> #RestauraceJmeno</li>
-                  <li><strong>Stories soutěže:</strong> Denní quiz o voucher</li>
-                  <li><strong>Reels:</strong> 30s recepty, behind the scenes</li>
-                  <li><strong>Influencer večery:</strong> Free jídlo = 10 postů</li>
-                </ul>
-                <div className="metric-box">
-                  <span className="highlight-text">Průměrný dosah: 15k lidí/měsíc</span>
-                </div>
-              </div>
-              
-              <div className="glass-card">
-                <h3>🎵 TikTok Challenge</h3>
-                <div className="challenge-example">
-                  <h4>"Zvládneš sníst naše XXL burger?"</h4>
-                  <ul>
-                    <li>Hashtag #XXLBurgerChallenge</li>
-                    <li>Pod 10 minut = jídlo zdarma</li>
-                    <li>Sdílení = 20% sleva pro kamarády</li>
-                  </ul>
-                  <p><strong>Výsledek:</strong> 2.5M zhlédnutí, +300% návštěvnost</p>
-                </div>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>⭐ Online recenze management</h3>
-                <ul>
-                  <li><strong>AI monitoring:</strong> Okamžitá notifikace na nové recenze</li>
-                  <li><strong>Šablony odpovědí:</strong> Personalizované, do 2 hodin</li>
-                  <li><strong>Incentive program:</strong> 10% sleva za 5* recenzi</li>
-                  <li><strong>Damage control:</strong> Pozvání nespokojených na degustaci</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 11: Eventy & akce */}
-          <div className={`slide ${currentSlide === 11 ? 'active' : ''}`}>
-            <div className="slide-counter">11/{TOTAL_SLIDES}</div>
-            <h2>🎉 Eventy & akce pro veřejnost</h2>
-            
-            <div className="events-calendar">
-              <div className="glass-card">
-                <h3>📅 Měsíční kalendář eventů</h3>
-                <div className="event-grid">
-                  <div className="event-item">
-                    <h4>🍷 Pondělí: Wine Tasting</h4>
-                    <p>Degustace 5 vín + tapas za 490 Kč</p>
-                    <p className="roi">Průměrná útrata: 850 Kč/os</p>
-                  </div>
-                  <div className="event-item">
-                    <h4>🎤 Středa: Open Mic</h4>
-                    <p>Vstup zdarma, minimum 200 Kč konzumace</p>
-                    <p className="roi">Obsazenost: 95%</p>
-                  </div>
-                  <div className="event-item">
-                    <h4>🧑‍🍳 Pátek: Cooking Class</h4>
-                    <p>Kurz vaření s šéfkuchařem, 1490 Kč</p>
-                    <p className="roi">Čistý zisk: 900 Kč/os</p>
-                  </div>
-                  <div className="event-item">
-                    <h4>🎨 Neděle: Kids Workshop</h4>
-                    <p>Pizzy pro děti + malování</p>
-                    <p className="roi">Průměrně 15 rodin</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card partnership-highlight">
-                <h3>💡 Tipy pro úspěšné eventy</h3>
-                <ul>
-                  <li><strong>Pravidelnost:</strong> Stejný den, stejný čas</li>
-                  <li><strong>Partnerství:</strong> Místní dodavatelé vína, pivovary</li>
-                  <li><strong>Early bird:</strong> -20% při rezervaci týden předem</li>
-                  <li><strong>Bundle deals:</strong> Event + večeře = kompletní zážitek</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 12: Lokální spolupráce */}
-          <div className={`slide ${currentSlide === 12 ? 'active' : ''}`}>
-            <div className="slide-counter">12/{TOTAL_SLIDES}</div>
-            <h2>🏘️ Komunitní & lokální spolupráce</h2>
-            
-            <div className="partnership-examples">
-              <div className="glass-card">
-                <h3>🏢 B2B Partnerství</h3>
-                <div className="b2b-deals">
-                  <div className="deal">
-                    <h4>Oracle Czech</h4>
-                    <p>500 zaměstnanců v okolí</p>
-                    <ul>
-                      <li>Firemní obědy se slevou 15%</li>
-                      <li>Catering pro meetingy</li>
-                      <li>Vánoční večírky</li>
-                    </ul>
-                    <p className="revenue">Měsíční příjem: 180k Kč</p>
-                  </div>
-                  <div className="deal">
-                    <h4>Fitness Factory</h4>
-                    <p>1200 aktivních členů</p>
-                    <ul>
-                      <li>Healthy menu pro sportovce</li>
-                      <li>Post-workout shakes</li>
-                      <li>Vzájemná propagace</li>
-                    </ul>
-                    <p className="revenue">Měsíční příjem: 65k Kč</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>🎓 Studentské programy</h3>
-                <ul>
-                  <li><strong>ISIC sleva 20%</strong> po-čt</li>
-                  <li><strong>Study rooms:</strong> WiFi, káva zdarma 14-18h</li>
-                  <li><strong>Exam period special:</strong> Energy menu</li>
-                  <li><strong>Absolventské večírky:</strong> Kompletní servis</li>
-                </ul>
-                <div className="impact">
-                  📈 <strong>Dopad:</strong> +40% návštěvnost odpoledne
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 13: Slevové portály */}
-          <div className={`slide ${currentSlide === 13 ? 'active' : ''}`}>
-            <div className="slide-counter">13/{TOTAL_SLIDES}</div>
-            <h2>🎟️ Slevové portály & kupóny</h2>
-            
-            <div className="voucher-analysis">
-              <div className="glass-card problem-highlight">
-                <h3>⚠️ Pozor na pasti</h3>
-                <ul>
-                  <li><strong>Slevomat bere 20-30%</strong> z již zlevněné ceny</li>
-                  <li><strong>Špatná klientela</strong> - hledači slev, ne kvalita</li>
-                  <li><strong>Devalvace značky</strong> - "ta levná restaurace"</li>
-                  <li><strong>Nízká konverze</strong> - pouze 15% se vrátí za plnou cenu</li>
-                </ul>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>✅ Jak na to správně</h3>
-                <ul>
-                  <li><strong>Vlastní vouchery:</strong> Kontrola nad slevou i klientelou</li>
-                  <li><strong>Hodnota, ne sleva:</strong> "Menu za 599 v hodnotě 899"</li>
-                  <li><strong>Omezené množství:</strong> Prvních 100 kupónů</li>
-                  <li><strong>Upsell strategie:</strong> Základní menu, příplatky plná cena</li>
-                </ul>
-                
-                <div className="voucher-example">
-                  <h4>Příklad úspěšného voucheru:</h4>
-                  <div className="voucher-card">
-                    <p><strong>"Degustační menu pro 2"</strong></p>
-                    <p>3 chody + láhev vína</p>
-                    <p>Běžná cena: 1490 Kč | Voucher: 990 Kč</p>
-                    <p className="fine-print">Platnost: Po-Čt, nutná rezervace</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 14: Moderní technologie */}
-          <div className={`slide ${currentSlide === 14 ? 'active' : ''}`}>
-            <div className="slide-counter">14/{TOTAL_SLIDES}</div>
-            <h2>💻 Moderní technologie</h2>
-            
-            <div className="tech-showcase">
-              <div className="glass-card">
-                <h3>📱 Self-service kiosky</h3>
-                <ul>
-                  <li><strong>Rychlejší odbavení:</strong> -50% čekací doba</li>
-                  <li><strong>Upsell algoritmy:</strong> +23% průměrná objednávka</li>
-                  <li><strong>Personalizace:</strong> Pamatuje si oblíbené</li>
-                  <li><strong>Úspora:</strong> 1.5 zaměstnance na směnu</li>
-                </ul>
-                <div className="roi-calculation">
-                  <p>Investice: 150k Kč | Návratnost: 8 měsíců</p>
-                </div>
-              </div>
-              
-              <div className="glass-card">
-                <h3>🥽 AR/VR Menu</h3>
-                <div className="ar-features">
-                  <ul>
-                    <li>📱 Naskenuj QR → Vidíš 3D jídlo na stole</li>
-                    <li>🍽️ Reálná velikost porcí</li>
-                    <li>🌶️ Vizuální indikátory pálivosti</li>
-                    <li>🥛 Alergeny v real-time</li>
-                  </ul>
-                  <p className="impact"><strong>Efekt:</strong> -40% vrácených jídel</p>
-                </div>
-              </div>
-              
-              <div className="glass-card partnership-highlight">
-                <h3>⚡ Chytrý stůl</h3>
-                <div className="smart-table">
-                  <ul>
-                    <li>🔌 Bezdrátové nabíjení</li>
-                    <li>📱 Objednávkový tablet</li>
-                    <li>🎮 Hry pro děti během čekání</li>
-                    <li>💳 Platba přímo u stolu</li>
-                    <li>⭐ Okamžité hodnocení</li>
-                  </ul>
-                  <p><strong>Premium positioning:</strong> +30% vyšší účet</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 15: Dynamic Pricing */}
-          <div className={`slide ${currentSlide === 15 ? 'active' : ''}`}>
-            <div className="slide-counter">15/{TOTAL_SLIDES}</div>
-            <h2>💰 Dynamic Pricing & Menu Optimization</h2>
-            
-            <div className="pricing-strategy">
-              <div className="glass-card">
-                <h3>📊 AI Cenová optimalizace</h3>
-                <div className="pricing-factors">
-                  <div className="factor">
-                    <h4>🌤️ Počasí</h4>
-                    <p>Horký den = +20% na studených nápojích</p>
-                    <p>Déšť = -15% na delivery</p>
-                  </div>
-                  <div className="factor">
-                    <h4>📅 Den/Čas</h4>
-                    <p>Pátek večer = premium ceny</p>
-                    <p>Úterý oběd = aggressive pricing</p>
-                  </div>
-                  <div className="factor">
-                    <h4>📈 Poptávka</h4>
-                    <p>Plno nad 80% = +10% na vše</p>
-                    <p>Pod 30% = flash promoce</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>🧪 A/B Testing Menu</h3>
-                <ul>
-                  <li><strong>Verze A:</strong> Tradiční české - guláš, svíčková</li>
-                  <li><strong>Verze B:</strong> Fusion - Asian goulash, Modern svíčková</li>
-                  <li><strong>Měření:</strong> Konverze, průměrná útrata, spokojenost</li>
-                  <li><strong>Výsledek:</strong> Fusion +35% marže, stejná spokojenost</li>
-                </ul>
-              </div>
-              
-              <div className="menu-psychology">
-                <h3>🧠 Psychologie menu</h3>
-                <div className="glass-card">
-                  <ul>
-                    <li><strong>Decoy effect:</strong> Drahé víno dělá střední "rozumnou volbou"</li>
-                    <li><strong>Anchoring:</strong> První položka 890 Kč → vše ostatní levné</li>
-                    <li><strong>Charm pricing:</strong> 199 místo 200 Kč</li>
-                    <li><strong>Descriptive labels:</strong> "Babičky Marty" místo jen "guláš"</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 16: Supply Chain Optimization */}
-          <div className={`slide ${currentSlide === 16 ? 'active' : ''}`}>
-            <div className="slide-counter">16/{TOTAL_SLIDES}</div>
-            <h2>📦 Supply Chain Optimization</h2>
-            
-            <div className="supply-chain">
-              <div className="glass-card">
-                <h3>🔮 Predikce spotřeby</h3>
-                <div className="prediction-model">
-                  <h4>AI analyzuje:</h4>
-                  <ul>
-                    <li>📅 Historická data - 2 roky zpět</li>
-                    <li>🌤️ Předpověď počasí</li>
-                    <li>🎪 Místní události</li>
-                    <li>📺 TV program (fotbal = +60% pivo)</li>
-                    <li>🗓️ Svátky a prázdniny</li>
-                  </ul>
-                  <div className="accuracy-box">
-                    <span className="stat-number">94%</span>
-                    <span className="stat-label">přesnost predikce</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>🚚 Automatické objednávání</h3>
-                <div className="auto-order-flow">
-                  <div className="step">1. AI detekuje nízké zásoby</div>
-                  <div className="step">2. Porovná ceny 5 dodavatelů</div>
-                  <div className="step">3. Vytvoří optimální objednávku</div>
-                  <div className="step">4. Čeká na schválení (nebo auto)</div>
-                  <div className="step">5. Sleduje dodávku real-time</div>
-                </div>
-                <p className="saving">💰 Úspora: 15% na nákupech</p>
-              </div>
-              
-              <div className="glass-card partnership-highlight">
-                <h3>♻️ Waste Reduction AI</h3>
-                <ul>
-                  <li><strong>Optimalizace porcí:</strong> -20% food waste</li>
-                  <li><strong>FIFO tracking:</strong> Automatické upozornění na expiraci</li>
-                  <li><strong>Leftover creativity:</strong> AI návrhy na využití zbytků</li>
-                  <li><strong>Kompost tracking:</strong> Měření a reporting</li>
-                </ul>
-                <div className="environmental-impact">
-                  🌱 <strong>-2.5 tuny</strong> odpadu ročně
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 17: Competitive Intelligence */}
-          <div className={`slide ${currentSlide === 17 ? 'active' : ''}`}>
-            <div className="slide-counter">17/{TOTAL_SLIDES}</div>
-            <h2>🔍 Competitive Intelligence</h2>
-            
-            <div className="competitive-analysis">
-              <div className="glass-card">
-                <h3>📊 Kontinuální monitoring konkurence</h3>
-                <div className="monitoring-dashboard">
-                  <h4>Co AI sleduje 24/7:</h4>
-                  <ul>
-                    <li>💰 Ceny na Foodora/Wolt/Uber Eats</li>
-                    <li>📱 Nové položky v menu</li>
-                    <li>⭐ Recenze a hodnocení</li>
-                    <li>🎯 Marketingové kampaně</li>
-                    <li>👥 Personální změny</li>
-                  </ul>
-                  <div className="alert-example">
-                    <p className="alert">⚠️ ALERT: Konkurence snížila ceny pizzy o 20%</p>
-                    <p className="response">→ Automatický návrh: 2+1 pizza akce</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card solution-highlight">
-                <h3>📈 Analýza trendů</h3>
-                <div className="trend-tracking">
-                  <div className="trend">
-                    <h4>🔥 Virální jídla</h4>
-                    <p>Smash burger trend → Menu za 3 dny</p>
-                  </div>
-                  <div className="trend">
-                    <h4>🥗 Dietary shifts</h4>
-                    <p>+300% poptávka po vegan → Nové menu sekce</p>
-                  </div>
-                  <div className="trend">
-                    <h4>🍹 Nápojové trendy</h4>
-                    <p>Mocktails boom → Alkohol-free bar</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 18: Customer Analytics */}
-          <div className={`slide ${currentSlide === 18 ? 'active' : ''}`}>
-            <div className="slide-counter">18/{TOTAL_SLIDES}</div>
-            <h2>📊 Customer Behavior Analytics</h2>
-            
-            <div className="analytics-dashboard">
-              <div className="glass-card">
-                <h3>🎥 Heatmap analýza</h3>
-                <div className="heatmap-insights">
-                  <ul>
-                    <li>📍 Nejoblíbenější stoly: U okna (65% preference)</li>
-                    <li>⏱️ Průměrná doba strávená: 72 minut</li>
-                    <li>🚶 Flow patterns: Bar → Stůl → WC → Platba</li>
-                    <li>👀 Nejvíce fotografované místo: Nástěnka s menu</li>
-                  </ul>
-                  <p className="optimization">→ Redesign: Premium stoly u okna +20% cena</p>
-                </div>
-              </div>
-              
-              <div className="glass-card partnership-highlight">
-                <h3>😊 Sentiment Analysis</h3>
-                <div className="sentiment-breakdown">
-                  <div className="sentiment-score">
-                    <span className="score-number">8.7/10</span>
-                    <span className="score-label">Celkové skóre</span>
-                  </div>
-                  <div className="sentiment-details">
-                    <p>✅ Pozitivní: "Skvělá obsluha" (156x)</p>
-                    <p>⚠️ Neutrální: "Průměrné porce" (89x)</p>
-                    <p>❌ Negativní: "Dlouhé čekání" (34x)</p>
-                  </div>
-                  <div className="action-taken">
-                    <strong>Akce:</strong> Přidán runner na busy směny
-                  </div>
-                </div>
-              </div>
-              
-              <div className="glass-card">
-                <h3>🔄 Churn Prediction</h3>
-                <ul>
-                  <li><strong>Rizikoví zákazníci:</strong> 3+ týdny bez návštěvy</li>
-                  <li><strong>Automatická akce:</strong> Personalizovaný voucher</li>
-                  <li><strong>Success rate:</strong> 68% se vrátí do týdne</li>
-                  <li><strong>ROI:</strong> 12x (50 Kč voucher → 600 Kč útrata)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 19: ROI a výsledky */}
-          <div className={`slide ${currentSlide === 19 ? 'active' : ''}`}>
-            <div className="slide-counter">19/{TOTAL_SLIDES}</div>
-            <h2>💰 ROI a měřitelné výsledky</h2>
-            
-            <div className="roi-summary">
-              <div className="glass-card solution-highlight">
-                <h3>📈 Průměrné výsledky po 6 měsících</h3>
-                <div className="results-grid">
-                  <div className="result-item">
-                    <span className="metric">+47%</span>
-                    <span className="label">Nárůst tržeb</span>
-                  </div>
-                  <div className="result-item">
-                    <span className="metric">+125%</span>
-                    <span className="label">Online visibility</span>
-                  </div>
-                  <div className="result-item">
-                    <span className="metric">-31%</span>
-                    <span className="label">Provozní náklady</span>
-                  </div>
-                  <div className="result-item">
-                    <span className="metric">+2.1⭐</span>
-                    <span className="label">Google hodnocení</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="case-study-final">
-                <div className="glass-card partnership-highlight">
-                  <h3>🏆 Case Study: Bistro Na Růžku</h3>
-                  <div className="before-after">
-                    <div className="before">
-                      <h4>Před AI:</h4>
+                {/* Slide 3: AI řešení - přehled */}
+                <div className={`slide ${currentSlide === 3 ? 'active' : ''}`}>
+                  <div className="slide-counter">3/{TOTAL_SLIDES}</div>
+                  <h2>🤖 Naše AI řešení pro restaurace</h2>
+                  
+                  <div className="ai-features-grid">
+                    <div className="glass-card partnership-highlight">
+                      <h3>🎯 Marketing & Zákazníci</h3>
                       <ul>
-                        <li>Tržby: 450k/měsíc</li>
-                        <li>Zákazníků: 1200</li>
-                        <li>Google: 3.8⭐</li>
-                        <li>Marže: 18%</li>
+                        <li>Inteligentní lead generation</li>
+                        <li>Automatický content na sociální sítě</li>
+                        <li>Personalizované kampaně</li>
                       </ul>
                     </div>
-                    <div className="after">
-                      <h4>Po 6 měsících:</h4>
+                    
+                    <div className="glass-card solution-highlight">
+                      <h3>🤝 Customer Experience</h3>
                       <ul>
-                        <li>Tržby: 780k/měsíc</li>
-                        <li>Zákazníků: 2850</li>
-                        <li>Google: 4.7⭐</li>
-                        <li>Marže: 29%</li>
+                        <li>AI chatbot pro rezervace</li>
+                        <li>Prediktivní doporučování</li>
+                        <li>Automatické follow-up</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="glass-card">
+                      <h3>⚙️ Operační efektivita</h3>
+                      <ul>
+                        <li>Optimalizace zásob</li>
+                        <li>Predikce poptávky</li>
+                        <li>Automatické objednávky</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="glass-card security-highlight">
+                      <h3>📊 Data Intelligence</h3>
+                      <ul>
+                        <li>Analýza konkurence</li>
+                        <li>Sentiment tracking</li>
+                        <li>Predikce trendů</li>
                       </ul>
                     </div>
                   </div>
-                  <p className="testimonial">
-                    "AI kompletně změnila náš byznys. Nejen tržby, ale hlavně klid."
-                    <br />- Jan Novák, majitel
-                  </p>
+                </div>
+
+                {/* Slide 20: Call to Action */}
+                <div className={`slide ${currentSlide === 20 ? 'active' : ''}`}>
+                  <div className="slide-counter">20/{TOTAL_SLIDES}</div>
+                  <div className="cta-section">
+                    <h1>🚀 Připraveni na revoluci?</h1>
+                    
+                    <div className="offer-box">
+                      <h3>🎁 Speciální nabídka pro první 3 restaurace</h3>
+                      <div className="offer-details">
+                        <div className="offer-item">
+                          <h4>📱 Kompletní AI systém</h4>
+                          <p>Marketing, customer service, analytics</p>
+                        </div>
+                        <div className="offer-item">
+                          <h4>🚀 3 měsíce zdarma</h4>
+                          <p>Hodnota 150 000 Kč</p>
+                        </div>
+                        <div className="offer-item">
+                          <h4>👨‍🏫 Full training</h4>
+                          <p>Pro celý tým včetně ongoing support</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="urgency">
+                      <p className="deadline">⏰ Nabídka platí pouze do konce měsíce!</p>
+                    </div>
+                    
+                    <div className="cta-buttons">
+                      <button className="cta-button primary" onClick={() => alert('📞 Voláme Vám do 24 hodin!')}>
+                        Chci nezávaznou konzultaci
+                      </button>
+                      <button className="cta-button secondary" onClick={() => alert('📧 Demo přístup odeslán na email!')}>
+                        Vyzkoušet demo zdarma
+                      </button>
+                    </div>
+                    
+                    <div className="contact-info">
+                      <p>📧 restaurace@ai-solutions.cz | 📞 +420 777 888 999</p>
+                      <p className="guarantee">✅ 100% garance vrácení peněz, pokud nebudete spokojeni</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Slide 20: Call to Action */}
-          <div className={`slide ${currentSlide === 20 ? 'active' : ''}`}>
-            <div className="slide-counter">20/{TOTAL_SLIDES}</div>
-            <div className="cta-section">
-              <h1>🚀 Připraveni na revoluci?</h1>
-              
-              <div className="offer-box">
-                <h3>🎁 Speciální nabídka pro první 3 restaurace</h3>
-                <div className="offer-details">
-                  <div className="offer-item">
-                    <h4>📱 Kompletní AI systém</h4>
-                    <p>Marketing, customer service, analytics</p>
-                  </div>
-                  <div className="offer-item">
-                    <h4>🚀 3 měsíce zdarma</h4>
-                    <p>Hodnota 150 000 Kč</p>
-                  </div>
-                  <div className="offer-item">
-                    <h4>👨‍🏫 Full training</h4>
-                    <p>Pro celý tým včetně ongoing support</p>
-                  </div>
-                </div>
+              <div className="navigation">
+                <button className="nav-button" onClick={prevSlide}>‹</button>
+                <button className="nav-button" onClick={nextSlide}>›</button>
               </div>
               
-              <div className="urgency">
-                <p className="deadline">⏰ Nabídka platí pouze do konce měsíce!</p>
-              </div>
-              
-              <div className="cta-buttons">
-                <button className="cta-button primary" onClick={() => alert('📞 Voláme Vám do 24 hodin!')}>
-                  Chci nezávaznou konzultaci
-                </button>
-                <button className="cta-button secondary" onClick={() => alert('📧 Demo přístup odeslán na email!')}>
-                  Vyzkoušet demo zdarma
-                </button>
-              </div>
-              
-              <div className="contact-info">
-                <p>📧 restaurace@ai-solutions.cz | 📞 +420 777 888 999</p>
-                <p className="guarantee">✅ 100% garance vrácení peněz, pokud nebudete spokojeni</p>
+              <div className="slide-indicator">
+                {Array.from({ length: TOTAL_SLIDES }, (_, index) => (
+                  <div
+                    key={index + 1}
+                    className={`indicator-dot ${currentSlide === index + 1 ? 'active' : ''}`}
+                    onClick={() => goToSlide(index + 1)}
+                  />
+                ))}
               </div>
             </div>
-          </div>
-        </div>
+          );
+        };
 
-        <div className="navigation">
-          <button className="nav-button" onClick={prevSlide}>‹</button>
-          <button className="nav-button" onClick={nextSlide}>›</button>
-        </div>
-        
-        <div className="slide-indicator">
-          {Array.from({ length: TOTAL_SLIDES }, (_, index) => (
-            <div
-              key={index + 1}
-              className={`indicator-dot ${currentSlide === index + 1 ? 'active' : ''}`}
-              onClick={() => goToSlide(index + 1)}
-            />
-          ))}
-        </div>
-      </div>
-    </>
-  );
-};
-
-export default Presentation;
+        ReactDOM.render(React.createElement(Presentation), document.getElementById('root'));
+    </script>
+</body>
+</html>
